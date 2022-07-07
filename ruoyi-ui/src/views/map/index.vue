@@ -64,6 +64,7 @@ export default {
       this.signIds.forEach(s=>{
         document.getElementById(s).remove();
       })
+      this.signIds = []
     },
     getUuid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
