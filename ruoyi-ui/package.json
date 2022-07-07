@@ -53,12 +53,14 @@
     "screenfull": "5.0.2",
     "sortablejs": "1.10.2",
     "vue": "2.6.12",
+    "vue-contextmenu": "^1.5.11",
     "vue-count-to": "1.0.13",
     "vue-cropper": "0.5.5",
     "vue-meta": "2.4.0",
     "vue-router": "3.4.9",
     "vuedraggable": "2.24.3",
-    "vuex": "3.6.0"
+    "vuex": "3.6.0",
+    "jquery": "^3.6.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "4.4.6",
@@ -71,6 +73,7 @@
     "connect": "3.6.6",
     "eslint": "7.15.0",
     "eslint-plugin-vue": "7.2.0",
+    "jquery": "^3.6.0",
     "lint-staged": "10.5.3",
     "runjs": "4.4.2",
     "sass": "1.32.13",
