@@ -1,8 +1,10 @@
 <template>
-  <div class="img" id="dv">
-    <img class="img1" @contextmenu="rightClick($event)" :src="imgUrl">
+  <div>
+    <div class="img" id="dv">
+      <img class="img1" @contextmenu="rightClick($event)" :src="imgUrl">
+    </div>
+    <button @click="clear" style="width: 150px; height: 20px">清空所有元素</button>
   </div>
-  <button onclick=""></button>
 </template>
 
 <script>
@@ -42,16 +44,26 @@ export default {
       div.style.position = 'absolute'; //设置布局
       div.style.width = this.signWidth + 'px'; //设置标点宽度
       div.style.height = this.signHeight + 'px'; //设置标点高度
+      let that = this;
       div.onclick = function () { //添加标点点击事件
-
-        // signClick(x + 'px',y + 'px',this.signId)
-        // this.signClick(x + 'px',y + 'px',this.signId)
+        that.signClick(that,x + 'px',y + 'px',this.signId)
       }
       document.getElementById(divName).appendChild(div)
-      this.sign.push(div)
-      console.log(this.sign)
-      this.signIds.push(this.signId)
-      console.log(this.signIds)
+      this.sign.push(div) //统计标点信息
+      this.signIds.push(this.signId) //统计标点id
+    },
+    //标点的点击事件
+    signClick(that, x, y, signId){
+      that.dropDownDisplay = true
+      console.log(this.dropDownDisplay)
+      console.log(x)
+      console.log(y)
+    },
+    //清除全部标记
+    clear(){
+      this.signIds.forEach(s=>{
+        document.getElementById(s).remove();
+      })
     },
     getUuid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -60,15 +72,8 @@ export default {
         return v.toString(16);
       });
     },
-
   },
 };
-function signClick(x, y, signId){
-  this.dropDownDisplay = true
-  console.log(this.dropDownDisplay)
-  console.log(x)
-  console.log(y)
-}
 </script>
 
 <style scoped lang="scss">
