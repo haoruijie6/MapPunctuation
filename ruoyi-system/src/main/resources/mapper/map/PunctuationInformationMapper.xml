@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.map.mapper.PunctuationInformationMapper">
+
+    <resultMap type="TPunctuationInformationPo" id="TPunctuationInformationResult">
+        <result property="id" column="id"/>
+        <result property="imageId" column="image_id"/>
+        <result property="relativeToPictureX" column="relative_to_picture_X"/>
+        <result property="relativeToPictureY" column="relative_to_picture_Y"/>
+        <result property="signWidth" column="sign_width"/>
+        <result property="signHeight" column="sign_height"/>
+        <result property="punctuationElement" column="punctuation_element"/>
+        <result property="signContent" column="sign_content"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="signShape" column="sign_shape"/>
+        <result property="signColor" column="sign_color"/>
+        <result property="state" column="state"/>
+    </resultMap>
+
+    <sql id="selectTPunctuationInformationVo">
+        select id,
+               image_id,
+               relative_to_picture_X,
+               relative_to_picture_Y,
+               sign_width,
+               sign_height,
+               sign_content,
+               create_time,
+               create_by,
+               update_time,
+               update_by,
+               sign_shape,
+               sign_color,
+               state
+        from t_punctuation_information
+    </sql>
+
+    <select id="selectTPunctuationInformationList" parameterType="TPunctuationInformationPo"
+            resultMap="TPunctuationInformationResult">
+        <include refid="selectTPunctuationInformationVo"/>
+        <where>
+            <if test="imageId != null  and imageId != ''">and image_id = #{imageId}</if>
+            <if test="relativeToPictureX != null  and relativeToPictureX != ''">and relative_to_picture_X =
+                #{relativeToPictureX}
+            </if>
+            <if test="relativeToPictureY != null  and relativeToPictureY != ''">and relative_to_picture_Y =
+                #{relativeToPictureY}
+            </if>
+            <if test="signWidth != null  and signWidth != ''">and sign_width = #{signWidth}</if>
+            <if test="signHeight != null  and signHeight != ''">and sign_height = #{signHeight}</if>
+            <if test="signContent != null  and signContent != ''">and sign_content = #{signContent}</if>
+            <if test="signShape != null  and signShape != ''">and sign_shape = #{signShape}</if>
+            <if test="signColor != null  and signColor != ''">and sign_color = #{signColor}</if>
+            <if test="state != null ">and state = #{state}</if>
+        </where>
+    </select>
+
+    <select id="selectTPunctuationInformationById" parameterType="String" resultMap="TPunctuationInformationResult">
+        <include refid="selectTPunctuationInformationVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertTPunctuationInformation" parameterType="TPunctuationInformationPo">
+
+        insert into t_punctuation_information
+            (
+                 id,
+                image_id,
+                relative_to_picture_X,
+                relative_to_picture_Y,
+                sign_width,
+                sign_height,
+                punctuation_element,
+                sign_content,
+                sign_shape,
+                sign_color,
+                `state`
+            )
+        values
+        <foreach collection="tPunctuationInformation" item="item" separator=",">
+            (
+                #{item.id},
+                #{item.imageId},
+                #{item.relativeToPictureX},
+                #{item.relativeToPictureY},
+                #{item.signWidth},
+                #{item.signHeight},
+                #{item.punctuationElement},
+                #{item.signContent},
+                #{item.signShape},
+                #{item.signColor},
+                0
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateTPunctuationInformation" parameterType="TPunctuationInformationPo">
+        update t_punctuation_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="imageId != null and imageId != ''">image_id = #{imageId},</if>
+            <if test="relativeToPictureX != null and relativeToPictureX != ''">relative_to_picture_X =
+                #{relativeToPictureX},
+            </if>
+            <if test="relativeToPictureY != null and relativeToPictureY != ''">relative_to_picture_Y =
+                #{relativeToPictureY},
+            </if>
+            <if test="signWidth != null and signWidth != ''">sign_width = #{signWidth},</if>
+            <if test="signHeight != null and signHeight != ''">sign_height = #{signHeight},</if>
+            <if test="signContent != null and signContent != ''">sign_content = #{signContent},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="signShape != null">sign_shape = #{signShape},</if>
+            <if test="signColor != null">sign_color = #{signColor},</if>
+            <if test="state != null">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTPunctuationInformationById" parameterType="String">
+        delete
+        from t_punctuation_information
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTPunctuationInformationByIds" parameterType="String">
+        delete from t_punctuation_information where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.map.mapper.ImagePuancuationInformationMapper">
+    <resultMap type="TImagePuancuationInformationPo" id="TImagePuancuationInformationResult">
+        <result property="id"    column="id"    />
+        <result property="imageName"    column="image_name"    />
+        <result property="imageUrl"    column="image_url"    />
+        <result property="imageWidth"    column="image_width"    />
+        <result property="imageHeigth"    column="image_heigth"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="updateBy"    column="update_by"    />
+    </resultMap>
+
+    <sql id="selectTImagePuancuationInformationVo">
+        select id, image_name, image_url, image_width, image_heigth, create_time, create_by, update_time, update_by from t_image_puancuation_information
+    </sql>
+
+    <select id="selectTImagePuancuationInformationList" parameterType="TImagePuancuationInformationPo" resultMap="TImagePuancuationInformationResult">
+        <include refid="selectTImagePuancuationInformationVo"/>
+        <where>
+            <if test="imageName != null  and imageName != ''"> and image_name like concat('%', #{imageName}, '%')</if>
+            <if test="imageUrl != null  and imageUrl != ''"> and image_url = #{imageUrl}</if>
+            <if test="imageWidth != null  and imageWidth != ''"> and image_width = #{imageWidth}</if>
+            <if test="imageHeigth != null  and imageHeigth != ''"> and image_heigth = #{imageHeigth}</if>
+        </where>
+    </select>
+
+    <select id="selectTImagePuancuationInformationById" parameterType="String" resultMap="TImagePuancuationInformationResult">
+        <include refid="selectTImagePuancuationInformationVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertTImagePuancuationInformation" parameterType="TImagePuancuationInformationPo">
+        insert into t_image_puancuation_information
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">id,</if>
+            <if test="imageName != null">image_name,</if>
+            <if test="imageUrl != null and imageUrl != ''">image_url,</if>
+            <if test="imageWidth != null">image_width,</if>
+            <if test="imageHeigth != null">image_heigth,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="updateBy != null">update_by,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id != ''">#{id},</if>
+            <if test="imageName != null">#{imageName},</if>
+            <if test="imageUrl != null and imageUrl != ''">#{imageUrl},</if>
+            <if test="imageWidth != null">#{imageWidth},</if>
+            <if test="imageHeigth != null">#{imageHeigth},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTImagePuancuationInformation" parameterType="TImagePuancuationInformationPo">
+        update t_image_puancuation_information
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="imageName != null">image_name = #{imageName},</if>
+            <if test="imageUrl != null and imageUrl != ''">image_url = #{imageUrl},</if>
+            <if test="imageWidth != null">image_width = #{imageWidth},</if>
+            <if test="imageHeigth != null">image_heigth = #{imageHeigth},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTImagePuancuationInformationById" parameterType="String">
+        delete from t_image_puancuation_information where id = #{id}
+    </delete>
+
+    <delete id="deleteTImagePuancuationInformationByIds" parameterType="String">
+        delete from t_image_puancuation_information where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

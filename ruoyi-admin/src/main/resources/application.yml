@@ -90,6 +90,13 @@ token:
     secret: abcdefghijklmnopqrstuvwxyz
     # 令牌有效期（默认30分钟）
     expireTime: 30
+---
+minio:
+  endpoint: http://120.25.176.54:9000 #MinIO服务所在地址
+  bucketName: image #存储桶名称
+  accessKey: minioadmin #访问的key
+  secretKey: minioadmin #访问的秘钥
+
   
 # MyBatis配置
 mybatis:
