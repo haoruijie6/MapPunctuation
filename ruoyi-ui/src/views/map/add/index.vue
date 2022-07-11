@@ -32,8 +32,8 @@
         </div>
       </el-form-item>
     </el-form>
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="2">
+    <el-row :gutter="20">
+      <el-col :span="3">
         <el-button type="danger"
                    plain
                    size="mini"
@@ -41,7 +41,7 @@
                    @click="clearImage">删除图片
         </el-button>
       </el-col>
-      <el-col :span="2">
+      <el-col :span="3">
         <el-button type="danger"
                    plain
                    size="mini"
@@ -49,35 +49,44 @@
                    @click="clearSign">清空所有元素
         </el-button>
       </el-col>
-      <el-col :span="2">
-        <el-button type="danger"
-                   plain
-                   size="mini"
-                   icon="el-icon-delete"
-                   @click="addImageAndSgin">保存
-        </el-button>
+      <el-col :span="2" v-if="signImageUrl != ''">
+        <div>
+          <el-button type="success"
+                     plain
+                     size="mini"
+                     icon="el-icon-upload2"
+                     @click="addImageAndSgin">上传
+          </el-button>
+        </div>
       </el-col>
-      <el-col :span="2" v-if="signImageUrl == ''">
-        <el-upload
-          class="upload-demo"
-          ref="upload"
-          action="https://jsonplaceholder.typicode.com/posts/"
-          :on-preview="handlePictureCardPreview"
-          :on-remove="handleRemove"
-          :on-change="addSignImageUrl"
-          :show-file-list="false"
-          :multiple="false"
-          name="file"
-          :auto-upload="false">
-          <el-button slot="trigger" size="small" type="primary">选择线路图</el-button>
-        </el-upload>
+      <el-col :span="3" v-if="signImageUrl == ''">
+        <div>
+          <el-upload
+                     class="upload-demo"
+                     ref="upload"
+                     action="https://jsonplaceholder.typicode.com/posts/"
+                     :on-preview="handlePictureCardPreview"
+                     :on-remove="handleRemove"
+                     :on-change="addSignImageUrl"
+                     :show-file-list="false"
+                     :multiple="false"
+                     name="file"
+                     :auto-upload="false">
+            <el-button slot="trigger"
+                       size="mini"
+                       icon="el-icon-circle-plus-outline"
+                       type="primary">选择线路图</el-button>
+          </el-upload>
+        </div>
       </el-col>
     </el-row>
-    <div class="signImg" id="dv" @mouseleave="leavePicture()" v-show="signImageUrl != ''">
-      <div style="position: relative">
-        <img id="signImage" @contextmenu="rightClick($event)" :src="signImageUrl">
-        <div id="leftClickDialogBox" v-show="leftClickDialogBox" @mouseover="leaveDialogBox()">
-          消息框
+    <div>
+      <div class="signImg" id="dv" @mouseleave="leavePicture()" v-show="signImageUrl != ''">
+        <div style="position: relative">
+          <img id="signImage" @contextmenu="rightClick($event)" :src="signImageUrl">
+          <div id="leftClickDialogBox" v-show="leftClickDialogBox" @mouseover="leaveDialogBox()">
+            消息框
+          </div>
         </div>
       </div>
     </div>
@@ -178,7 +187,7 @@ export default {
       }
       if (this.triangleBorder) {//是否开启三角边框
         div.style.background = 'transparent'; //设置颜色
-        div.style.borderBottom = '10px solid blue';
+        div.style.borderBottom = '10px solid '+this.signColor;
         div.style.borderTop = '10px solid transparent';
         div.style.borderRight = '10px solid transparent';
         div.style.borderLeft = '10px solid transparent';

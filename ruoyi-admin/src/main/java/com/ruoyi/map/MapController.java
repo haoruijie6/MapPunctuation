@@ -66,8 +66,16 @@ public class MapController extends BaseController {
      * @return
      */
     @GetMapping("/")
-    public TableDataInfo queryImageAndSgin(){
+    public AjaxResult queryImageAndSgin(){
+        return AjaxResult.success(mapService.queryImageAndSgin());
+    }
 
-        return null;
+    /**
+     * 查询线路图信息
+     * @return
+     */
+    @DeleteMapping("/{id}")
+    public AjaxResult deleteImageAndSgin(@PathVariable("id") String id){
+        return toAjax(mapService.deleteImageAndSgin(id));
     }
 }

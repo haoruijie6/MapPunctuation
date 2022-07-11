@@ -1,37 +1,68 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.map.mapper.ImagePuancuationInformationMapper">
     <resultMap type="TImagePuancuationInformationPo" id="TImagePuancuationInformationResult">
-        <result property="id"    column="id"    />
-        <result property="imageName"    column="image_name"    />
-        <result property="imageUrl"    column="image_url"    />
-        <result property="imageWidth"    column="image_width"    />
-        <result property="imageHeigth"    column="image_heigth"    />
-        <result property="createTime"    column="create_time"    />
-        <result property="createBy"    column="create_by"    />
-        <result property="updateTime"    column="update_time"    />
-        <result property="updateBy"    column="update_by"    />
+        <result property="id" column="id"/>
+        <result property="imageName" column="image_name"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="imageWidth" column="image_width"/>
+        <result property="imageHeigth" column="image_heigth"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
     </resultMap>
 
-    <sql id="selectTImagePuancuationInformationVo">
-        select id, image_name, image_url, image_width, image_heigth, create_time, create_by, update_time, update_by from t_image_puancuation_information
-    </sql>
+    <resultMap type="ImagePuancuationInformationDto" id="ImagePuancuationInformationDtoResult">
+        <result property="id" column="id"/>
+        <result property="imageName" column="image_name"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="imageWidth" column="image_width"/>
+        <result property="imageHeigth" column="image_heigth"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <collection property="tPunctuationInformationPoList" resultMap="TPunctuationInformationResult" ofType="TPunctuationInformationPo"/>
+    </resultMap>
 
-    <select id="selectTImagePuancuationInformationList" parameterType="TImagePuancuationInformationPo" resultMap="TImagePuancuationInformationResult">
-        <include refid="selectTImagePuancuationInformationVo"/>
-        <where>
-            <if test="imageName != null  and imageName != ''"> and image_name like concat('%', #{imageName}, '%')</if>
-            <if test="imageUrl != null  and imageUrl != ''"> and image_url = #{imageUrl}</if>
-            <if test="imageWidth != null  and imageWidth != ''"> and image_width = #{imageWidth}</if>
-            <if test="imageHeigth != null  and imageHeigth != ''"> and image_heigth = #{imageHeigth}</if>
-        </where>
-    </select>
+    <resultMap type="TPunctuationInformationPo" id="TPunctuationInformationResult">
+        <result property="id" column="id"/>
+        <result property="imageId" column="image_id"/>
+        <result property="relativeToPictureX" column="relative_to_picture_X"/>
+        <result property="relativeToPictureY" column="relative_to_picture_Y"/>
+        <result property="signWidth" column="sign_width"/>
+        <result property="signHeight" column="sign_height"/>
+        <result property="punctuationElement" column="punctuation_element"/>
+        <result property="signContent" column="sign_content"/>
+        <result property="signShape" column="sign_shape"/>
+        <result property="signColor" column="sign_color"/>
+        <result property="state" column="state"/>
+    </resultMap>
 
-    <select id="selectTImagePuancuationInformationById" parameterType="String" resultMap="TImagePuancuationInformationResult">
-        <include refid="selectTImagePuancuationInformationVo"/>
-        where id = #{id}
+    <select id="queryImageAndSgin" resultMap="ImagePuancuationInformationDtoResult">
+        select
+            tipi.id,
+            tipi.image_name,
+            tipi.image_url,
+            tipi.image_width,
+            tipi.image_heigth,
+            tpi.id,
+            tpi.image_id,
+            tpi.relative_to_picture_X,
+            tpi.relative_to_picture_Y,
+            tpi.sign_width,
+            tpi.sign_height,
+            tpi.sign_content,
+            tpi.sign_shape,
+            tpi.sign_color
+        from t_image_puancuation_information as tipi
+                 left join t_punctuation_information tpi on tipi.id = tpi.image_id
+        where tipi.create_by = #{userId}
+          and tpi.state = 0
+        order by tpi.create_time  DESC
     </select>
 
     <insert id="insertTImagePuancuationInformation" parameterType="TImagePuancuationInformationPo">
@@ -75,15 +106,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteTImagePuancuationInformationById" parameterType="String">
-        delete from t_image_puancuation_information where id = #{id}
-    </delete>
-
-    <delete id="deleteTImagePuancuationInformationByIds" parameterType="String">
-        delete from t_image_puancuation_information where id in
-        <foreach item="id" collection="array" open="(" separator="," close=")">
-            #{id}
-        </foreach>
+    <delete id="deleteImage" parameterType="String">
+        delete
+        from t_image_puancuation_information
+        where id = #{id}
     </delete>
 
 </mapper>

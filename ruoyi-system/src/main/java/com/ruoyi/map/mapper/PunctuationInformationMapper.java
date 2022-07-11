@@ -46,14 +46,5 @@ public interface PunctuationInformationMapper {
      * @param id 标点基本信息主键
      * @return 结果
      */
-    public int deleteTPunctuationInformationById(String id);
-
-    /**
-     * 批量删除标点基本信息
-     *
-     * @param ids 需要删除的数据主键集合
-     * @return 结果
-     */
-    public int deleteTPunctuationInformationByIds(String[] ids);
-
+    void deleteSgin(String id);
 }

@@ -1,48 +1,50 @@
 <template>
   <div class="app-container">
-<!--    <el-row :gutter="10" class="mb8">-->
-<!--      <el-col :span="2">-->
-<!--        <el-button type="danger"-->
-<!--                   plain-->
-<!--                   size="mini"-->
-<!--                   icon="el-icon-delete"-->
-<!--                   @click="clearImage">删除图片-->
-<!--        </el-button>-->
-<!--      </el-col>-->
-<!--      <el-col :span="2">-->
-<!--        <el-button type="danger"-->
-<!--                   plain-->
-<!--                   size="mini"-->
-<!--                   icon="el-icon-delete"-->
-<!--                   @click="clearSign">清空所有元素-->
-<!--        </el-button>-->
-<!--      </el-col>-->
-<!--    </el-row>-->
     <div>
 
-    </div>
-    <div>
-      <div v-show="signImageUrl == ''">
-        <el-upload
-          style="display: inline-block"
-          action="https://jsonplaceholder.typicode.com/posts/"
-          list-type="picture-card"
-          :on-preview="handlePictureCardPreview"
-          :on-remove="handleRemove"
-          :on-change="addSignImageUrl"
-          :limit="1"
-          multiple
-          accept="image/jpeg,image/jpg,image/png"
-          :auto-upload="false">
-          <i class="el-icon-plus"></i>
-        </el-upload>
+      <div style="position: relative" v-for="(item, index) in imageObjects ">
+        <img id="signImage" style="height: 20%;width: 20%;" :src="item.imageUrl">
+        <el-row :gutter="20">
+          <el-col :span="2">
+            <el-button type="success"
+                       plain
+                       size="mini"
+                       icon="el-icon-view"
+                       @click="queryImageMarker(index)">查看线路图
+            </el-button>
+          </el-col>
+          <el-col :span="2">
+            <el-button type="danger"
+                       plain
+                       size="mini"
+                       icon="el-icon-delete"
+                       @click="deleteImageMarker(index)">删除线路图
+            </el-button>
+          </el-col>
+        </el-row>
       </div>
-    </div>
-    <div class="signImg" id="dv" @mouseleave="leavePicture()" v-show="signImageUrl != ''">
-      <div style="position: relative">
-        <img id="signImage" style="height: 100%;width: 100%;" @contextmenu="rightClick($event)" :src="signImageUrl">
-        <div id="leftClickDialogBox" v-show="leftClickDialogBox" @mouseover="leaveDialogBox()">
-          消息框
+      <div>
+        <div v-show="signImageUrl != ''">
+          <div class="signImg" id="dv">
+            <img id="signImage" :src="signImageUrl">
+          </div>
+          <div style="margin-top: 10px">
+            <el-button type="danger"
+                       plain
+                       size="mini"
+                       icon="el-icon-delete"
+                       @click="connectTest()">连接点
+            </el-button>
+          </div>
+          <div style="margin-top: 10px">
+            <el-button type="danger"
+                       plain
+                       size="mini"
+                       icon="el-icon-delete"
+                       v-if="lineIds.length != 0"
+                       @click="cleanConnect()">清除连线
+            </el-button>
+          </div>
         </div>
       </div>
     </div>
@@ -50,187 +52,188 @@
 </template>
 
 <script>
+import {listInformation, deleteInformation} from "@/api/map/information";
+import {updateConfig} from "@/api/system/config";
+import {jsPlumb} from "jsplumb";
+
 export default {
-  name: "MapView",
+  name: "MapViews",
   data() {
     return {
-      imgUrl: require("@/assets/images/upoload.jpg"),//默认本地上传图片路径
-      proportionHeightInImg: 0,//鼠标所选位置相对于所选图片高度的比例
-      proportionWidthInImg: 0,//鼠标所选位置相对于所选图片宽度的比例
-      signWidth: 25, //设置标记点宽度
-      signHeight: 25, //设置标记点高度
-      signId: null,
-      sign: [], //标点div信息
-      signIds: [], //标点id集合
-      signXYArray: [], //标点xy位置的对象集合
-      triangleBorder: false,//开启三角边框
-      circularBorder: false, //圆边框
-      squareBorder: true,//方形
-      signColor: '#f00',
-      options: [{ //标点形状
-        value: '正方形',
-        label: '正方形'
-      }, {
-        value: '三角形',
-        label: '三角形'
-      }, {
-        value: '圆形',
-        label: '圆形'
-      },],
-      signBorder: '',
-      leftClickDialogBox: false, //左击标点对话框显示状态
+      imageObjects: [], //所有线路图与标点信息
+      signObject: [], //标点对象集合
       signImageUrl: '', //用户上传标点图片
-      signVisible: false, //图片详情
-      disabled: false,
+      lineIds:[]//线id集合
     };
   },
+  created() {
+    listInformation().then(response => {
+      this.imageObjects = response.data
+    });
+  },
   methods: {
-    rightClick(e) {
-      e.preventDefault();
-      e = e || window.event
-      var x = e.offsetX || e.layerX;
-      var y = e.offsetY || e.layerY;
-      //将标点添加到对象中
-      let xyObject = {
-        x: x,
-        y: y
+    //查看线路图详情
+    queryImageMarker(index) {
+      //清除之前全部标签
+      this.signObject.forEach(s => {
+        document.getElementById(s.id).remove();
+      })
+      //清除上一张图线
+      this.cleanConnect()
+      //初始化数据
+      this.signObject = [];
+      this.lineIds = [];
+
+      let imageObject = this.imageObjects[index]
+      this.signImageUrl = imageObject.imageUrl //设置图片url
+      this.signObject = imageObject.tPunctuationInformationPoList//设置当前图片的标点信息
+      for (let i = 0; i < this.signObject.length; i++) {
+        //创建标点
+        let div = this.createMarker(this.signObject[i])
+        //生成标点
+        document.getElementById("dv").appendChild(div)
       }
-      //将标点对象添加到集合中
-      this.signXYArray.push(xyObject)
-      //创建标点
-      this.createMarker(x, y, 'dv');
+      console.log(this.signObject)
     },
-    createMarker(x, y, divName) {
-      //获取标点id
-      this.signId = this.getUuid();
+    createMarker(signObject) {//获取标点id
       //创建一个div
       var div = document.createElement('div');
       //设置样式和距离
-      div.id = this.signId;
+      div.id = signObject.id;
       div.className = 'marker';
       div.style.position = 'absolute'; //设置布局
-      div.style.left = x + 'px';//设置位置
-      div.style.top = y + 'px';
-      let textNode=document.createTextNode(this.signXYArray.length);
+      div.style.left = signObject.relativeToPictureX + 'px';//设置位置
+      div.style.top = signObject.relativeToPictureY + 'px';
+      let textNode = document.createTextNode(signObject.signContent);
       div.appendChild(textNode);
-      div.style.width = this.signWidth + 'px'; //设置标点宽度
-      div.style.height = this.signHeight + 'px'; //设置标点高度
-      if (this.squareBorder) {//是否开启正方形
-        div.style.background = this.signColor; //设置颜色
+      div.style.width = signObject.signWidth + 'px'; //设置标点宽度
+      div.style.height = signObject.signHeight + 'px'; //设置标点高度
+      if (signObject.signShape) {//是否开启正方形
+        div.style.background = signObject.signColor; //设置颜色
       }
       if (this.circularBorder) {//是否开启圆边框
-        div.style.background = this.signColor; //设置颜色
+        div.style.background = signObject.signColor; //设置颜色
         div.style.borderRadius = '50%';
       }
       if (this.triangleBorder) {//是否开启三角边框
         div.style.background = 'transparent'; //设置颜色
-        div.style.borderBottom = '10px solid blue';
+        div.style.borderBottom = '10px solid ' + signObject.signColor;
         div.style.borderTop = '10px solid transparent';
         div.style.borderRight = '10px solid transparent';
         div.style.borderLeft = '10px solid transparent';
       }
-      let that = this;
-      //添加标点左击事件
-      div.onclick = function () {
-        that.signClick(that, x, y, this.signId)
+      return div;
+    },
+    //测试连接点
+    connectTest() {
+      //初始化数据
+      this.lineIds = [];
+      if (this.signObject.length < 1) {
+        this.$message.error('当前线路图只有一个点!');
+        return
       }
-      //添加标点右击事件
-      div.oncontextmenu = function (e) {
-        e.preventDefault();
-        that.signClick(that, x, y, this.signId)
+      for (let i = 0; i < this.signObject.length; i++) {
+        if (i === this.signObject.length - 1) {
+          return;
+        }
+        let distance = this.connect(
+          this.signObject[i].relativeToPictureX,
+          this.signObject[i].relativeToPictureY,
+          this.signObject[i + 1].relativeToPictureX,
+          this.signObject[i + 1].relativeToPictureY);
+        let line = Math.sqrt(Math.pow((this.signObject[i].relativeToPictureX - this.signObject[i + 1].relativeToPictureX), 2) + Math.pow((this.signObject[i].relativeToPictureY - this.signObject[i + 1].relativeToPictureY), 2))
+        console.log(distance)
+        console.log(this.signObject[i])
+        console.log(this.signObject[i].relativeToPictureX)
+        console.log(this.signObject[i + 1].relativeToPictureX)
+        console.log(this.signObject[i].relativeToPictureY)
+        console.log(this.signObject[i + 1].relativeToPictureY)
+        //生成线id
+        let lineId = this.getUuid();
+        // 设置一个div 宽度为 两点之间的距离，并且以 transform-origin: 0 50% 为圆心旋转，角度已经算出来
+        var div = document.createElement('div');
+        div.id = lineId;
+        div.style.position = "absolute";
+        div.style.borderTop = "1px solid black";
+        div.style.width = line + "px";
+        div.style.top = this.signObject[i].relativeToPictureY + "px";
+        div.style.left = this.signObject[i].relativeToPictureX + "px";
+        div.style.transform = "rotate(" + distance + "deg)";
+        div.style.transformOrigin = "0 50%";
+        //存入线id
+        this.lineIds.push(lineId);
+        // 添加到body 后面
+        document.getElementById("dv").appendChild(div)
       }
-      //生成标点
-      document.getElementById(divName).appendChild(div)
-      //统计标点信息
-      this.sign.push(div)
-      //统计标点id
-      this.signIds.push(this.signId)
     },
-    //标点的点击事件
-    signClick(that, x, y, signId) {
-      x = x + 29 + 'px'
-      y = y - 50 + 'px'
-      that.leftClickDialogBox = true
-      //设置消息框位置
-      document.getElementById('leftClickDialogBox').setAttribute('style', 'left: ' + x + ';top:' + y + ';position: absolute;')
+    //判断存在那个象限
+    connect(x1, y1, x2, y2) {
+      // 获得人物中心和鼠标坐标连线，与y轴正半轴之间的夹角
+      var x = x1 - x2;
+      var y = y1 - y2;
+      var z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+      var cos = y / z;
+      var radina = Math.acos(cos); // 用反三角函数求弧度
+      var angle = 180 / (Math.PI / radina); // 将弧度转换成角度
+      console.log(angle)
+      if (x2 > x1 && y2 === y1) {
+        // 在x轴正方向上
+        angle = 0;
+      }
+      if (x2 > x1 && y2 < y1) {
+        // 在第一象限;
+        angle = angle - 90;
+      }
+      if (x2 === x1 && y1 > y2) {
+        // 在y轴正方向上
+        angle = -90;
+      }
+      if (x2 < x1 && y2 < y1) {
+        console.log(21122111111111)
+        // 在第二象限
+        angle = 270 - angle;
+      }
+      if (x2 < x1 && y2 === y1) {
+        // 在x轴负方向
+        angle = 180;
+      }
+      if (x2 < x1 && y2 > y1) {
+        // 在第三象限
+        angle = 270 - angle;
+      }
+      if (x2 === x1 && y2 > y1) {
+        // 在y轴负方向上
+        angle = 90;
+      }
+      if (x2 > x1 && y2 > y1) {
+        // 在四象限
+        angle = angle - 90;
+      }
+      return angle;
     },
-    //图片操作
-    handleRemove(file, fileList) {
-      this.signImageUrl = '';
+    queryImageList() {
+      listInformation().then(response => {
+        this.imageObjects = response.data
+      });
     },
-    handlePictureCardPreview(file) {
-      this.signVisible = true;
+    deleteImageMarker(index) {
+      deleteInformation(this.imageObjects[index].id).then(res => {
+        if (res.code === 200) {
+          this.$modal.msgSuccess("删除成功!");
+          this.queryImageList();
+          //初始化数据
+          this.signObject = [];
+        } else {
+          this.$message.error('删除失败,请重试!');
+        }
+      });
     },
-    addSignImageUrl(file) {
-      this.signImageUrl = file.url;
-    },
-    //清除全部标记
-    clearSign() {
-      this.signIds.forEach(s => {
+    cleanConnect(){
+      //清除之前的连线
+      this.lineIds.forEach(s => {
         document.getElementById(s).remove();
       })
-      this.sign = [] //清除标点div信息
-      this.signIds = [] //清除标点id
-      this.signXYArray = [] //清除标点在图片上的xy
-    },
-    //清除图片1000
-    clearImage() {
-      this.signImageUrl = '';
-      this.clearSign();
-    },
-    //设置标点形状
-    judgeShape(signBorder) {
-      if (signBorder == '圆形') {
-        this.triangleBorder = false;//开启三角边框
-        this.circularBorder = true; //圆边框
-        this.squareBorder = false;//方形
-      } else if (signBorder == '三角形') {
-        this.triangleBorder = true;//开启三角边框
-        this.circularBorder = false; //圆边框
-        this.squareBorder = false;//方形
-      } else if (signBorder == '正方形') {
-        this.triangleBorder = false;//开启三角边框
-        this.circularBorder = false; //圆边框
-        this.squareBorder = true;//方形
-      }
-    },
-    //关闭消息框
-    leavePicture() {
-      this.leftClickDialogBox = false
-    },
-    //移入对话框不关闭
-    leaveDialogBox() {
-      this.leftClickDialogBox = true
-    },
-    //将所有点连在一起
-    connectSgin() {
-      console.log(this.signXYArray)
-      this.signXYArray.map((dot, index) => {
-        // 最后一个点没有连线
-        if (!dot[index + 1]) return;1000
-        const AB = {
-          x: dots[index + 1].x - dot.x,
-          y: dots[index + 1].y - dot.y,
-        }
-        const BC = {
-          x: 0,
-          y: 1,
-        }
-        // 向量的模
-        const a = Math.sqrt(Math.pow(AB.x, 2) + Math.pow(AB.y, 2));
-        const b = Math.sqrt(Math.pow(BC.x, 2) + Math.pow(BC.y, 2));
-        const aXb = (AB.x * BC.x) + (AB.y * BC.y);
-        const cos_ab = aXb / (a * b);
-        // 求出偏转角度
-        const angle_1 = Math.acos(cos_ab) * (180 / Math.PI);
-        // 10 是点的半径, 根据点的大小修改
-        lines.push({
-          x: dot.x + 10,
-          y: dot.y + 10,
-          width: a,
-          angel: AB.x > 0 ? Math.sqrt(Math.pow(angle_1, 2)) : -Math.sqrt(Math.pow(angle_1, 2))
-        })
-      })
+      this.lineIds = [];
     },
     getUuid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {

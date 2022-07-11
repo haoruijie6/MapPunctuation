@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 线路图
  */
@@ -39,5 +41,20 @@ public class MapServiceImpl implements MapService {
         int i = punctuationInformationMapper.insertTPunctuationInformation(image.gettPunctuationInformationPoList());
         System.err.println("添加标点数量"+i);
         return 1;
+    }
+
+    /**
+     * 查询图片
+     * @return 结果
+     */
+    @Override
+    public List<ImagePuancuationInformationDto> queryImageAndSgin() {
+        return imagePuancuationInformationMapper.queryImageAndSgin(String.valueOf(SecurityUtils.getUserId()));
+    }
+
+    @Override
+    public int deleteImageAndSgin(String id) {
+        punctuationInformationMapper.deleteSgin(id);
+        return imagePuancuationInformationMapper.deleteImage(id);
     }
 }
