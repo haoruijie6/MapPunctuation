@@ -33,6 +33,7 @@
                 sign_shape,
                 sign_color,
                 `state`,
+                sort,
                 create_time
             )
         values
@@ -49,6 +50,7 @@
                 #{item.signShape},
                 #{item.signColor},
                 0,
+                #{sort},
                 NOW()
             )
         </foreach>

@@ -70,6 +70,11 @@ public class TPunctuationInformationPo {
      */
     private Long state;
 
+    /**
+     * 排序
+     */
+    private Integer sort;
+
     public void setId(String id) {
         this.id = id;
     }
@@ -172,5 +177,13 @@ public class TPunctuationInformationPo {
 
     public void setPunctuationElement(String punctuationElement) {
         this.punctuationElement = punctuationElement;
+    }
+
+    public Integer getSort() {
+        return sort;
+    }
+
+    public void setSort(Integer sort) {
+        this.sort = sort;
     }
 }
