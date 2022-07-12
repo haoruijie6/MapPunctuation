@@ -8,14 +8,6 @@ import com.ruoyi.map.domain.po.TImagePuancuationInformationPo;
 public interface ImagePuancuationInformationMapper {
 
     /**
-     * 查询线路图信息列表
-     *
-     * @param tImagePuancuationInformation 线路图信息
-     * @return 线路图信息集合
-     */
-    public List<TImagePuancuationInformationPo> selectTImagePuancuationInformationList(TImagePuancuationInformationPo tImagePuancuationInformation);
-
-    /**
      * 新增线路图信息
      *
      * @param tImagePuancuationInformation 线路图信息

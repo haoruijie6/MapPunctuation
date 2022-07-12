@@ -37,33 +37,38 @@
     <!--      </div>-->
     <!--    </div>-->
     <!-- 用户导入对话框 -->
-    <el-dialog :visible.sync="open" :hide="removeConnect" @close="removeConnect">
+    <el-dialog :width="imageWidth+50+'px'" :visible.sync="open" :hide="removeConnect">
       <div style="width: 100%;">
-        <div v-show="signImageUrl !== ''" style="text-align:center;">
+        <div style="text-align:center;">
           <div class="signImg" id="dv">
             <img :src="signImageUrl" style="padding-bottom: 25px;background-color: white;">
-            <div>
+            <div style="background-color: white;">
               <el-button type="danger"
                          plain
                          icon="el-icon-share"
                          @click="createMarker()">查看标记点
               </el-button>
               <el-button
-                         type="danger"
-                         plain
-                         icon="el-icon-share"
-                         @click="connectLine()">连接点
+                type="danger"
+                plain
+                icon="el-icon-share"
+                @click="connectLine()">连接点
               </el-button>
               <el-button type="danger"
                          plain
-                         v-if="lineIds.length !== 0"
                          @click="cleanConnect()">清除连线
+              </el-button>
+              <el-button type="danger"
+                         plain
+                         @click="cleanSgin()">清除点
               </el-button>
             </div>
           </div>
         </div>
       </div>
     </el-dialog>
+
+
   </div>
 </template>
 
@@ -79,7 +84,9 @@ export default {
       imageObjects: [], //所有线路图与标点信息
       signObject: [], //标点对象集合
       signImageUrl: '', //用户上传标点图片
-      lineIds: []//线id集合
+      lineIds: [],//线id集合
+      imageWidth: 0,
+      imageHeight: 0 ,
     };
   },
   created() {
@@ -96,8 +103,11 @@ export default {
       this.open = true;
       //获取选择的线路图
       let imageObject = this.imageObjects[index]
-      this.signImageUrl = imageObject.imageUrl //设置图片url
+      this.imageWidth = Number(imageObject.imageWidth) ;
+      this.imageHeight = Number(imageObject.imageHeigth) ;
+      this.signImageUrl = imageObject.imageUrl; //设置图片url
       this.signObject = imageObject.tPunctuationInformationPoList//设置当前图片的标点信息
+
     },
     //创建点
     createMarker() {
@@ -227,29 +237,38 @@ export default {
         this.imageObjects = response.data
       });
     },
+    //删除线路图
     deleteImageMarker(index) {
-      deleteInformation(this.imageObjects[index].id).then(res => {
-        if (res.code === 200) {
-          this.$modal.msgSuccess("删除成功!");
-          this.queryImageList();
-          //初始化数据
-          this.signObject = [];
-        } else {
-          this.$message.error('删除失败,请重试!');
-        }
+      var that = this;
+      this.$modal.confirm('确认要删除这张线路图吗').then(function () {
+        return deleteInformation(that.imageObjects[index].id);
+      }).then(() => {
+        this.$modal.msgSuccess("删除成功");
+        this.queryImageList();
+        //初始化数据
+        this.signObject = [];
+      }).catch(() => {
       });
     },
     //remove元素
-    removeConnect(){
+    removeConnect() {
       try {
         //清除之前全部标签
         this.signObject.forEach(s => {
           document.getElementById(s.id).remove();
         })
-      }catch (e){
-      }finally {
+      } catch (e) {
+      } finally {
         //清除上一张图线
-        this.cleanConnect()
+        try {
+          //清除之前的连线
+          this.lineIds.forEach(s => {
+            document.getElementById(s).remove();
+          })
+        } catch (e) {
+        } finally {
+          this.lineIds = [];
+        }
         //初始化数据
         this.signObject = [];
         this.lineIds = [];
@@ -261,9 +280,22 @@ export default {
         this.lineIds.forEach(s => {
           document.getElementById(s).remove();
         })
-      }catch (e){
-      }finally {
+        this.$modal.msgSuccess("清除成功")
+      } catch (e) {
+        this.$modal.msgSuccess("未连线")
+      } finally {
         this.lineIds = [];
+      }
+    },
+    cleanSgin() {
+      try {
+        //清除之前全部标签
+        this.signObject.forEach(s => {
+          document.getElementById(s.id).remove();
+        })
+        this.$modal.msgSuccess("清除成功");
+      } catch (e) {
+        this.$modal.msgSuccess("暂无标点");
       }
     },
     getUuid() {

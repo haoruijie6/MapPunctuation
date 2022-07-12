@@ -81,12 +81,24 @@
       </el-col>
     </el-row>
     <div>
-      <div class="signImg" id="dv" @mouseleave="leavePicture()" v-show="signImageUrl != ''">
+      <div class="signImg" id="dv" @mouseleave="leavePicture" v-show="signImageUrl != ''">
         <div style="position: relative">
-          <img id="signImage" @contextmenu="rightClick($event)" :src="signImageUrl">
-          <div id="leftClickDialogBox" v-show="leftClickDialogBox" @mouseover="leaveDialogBox()">
+          <img id="signImage" @click="leavePicture" @contextmenu="rightClick($event)" :src="signImageUrl">
+          <div id="leftClickDialogBox" v-show="leftClickDialogBox" @mouseover="leaveDialogBox">
             消息框
           </div>
+          <el-popover
+            placement="top"
+            width="160"
+            v-model="visible"
+            @mouseover="leaveDialogBox">
+            <p>确定删除这个标点吗？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="visible = false">取消</el-button>
+              <el-button type="primary" size="mini" @click="deleteOneSignAndObject">确定</el-button>
+            </div>
+            <el-button v-show="deleteOneSignView" id="deleteOneSign" slot="reference">删除</el-button>
+          </el-popover>
         </div>
       </div>
     </div>
@@ -110,12 +122,13 @@ export default {
   name: "MapAdd",
   data() {
     return {
+      visible:true,
       imgId: '',
       imgUrl: require("@/assets/images/upoload.jpg"),//默认本地上传图片路径
       signImageWidth: 0, //线路图宽
       signImageHeight: 0, //线路图高
-      signWidth: 25, //设置标记点宽度
-      signHeight: 25, //设置标记点高度
+      signWidth: 35, //设置标记点宽度
+      signHeight: 35, //设置标记点高度
       signId: null,
       sign: [], //标点div信息
       signIds: [], //标点id集合
@@ -141,6 +154,8 @@ export default {
       signVisible: false, //图片详情
       disabled: false,
       file: null,
+      deleteOneSignView:false, //右击删除标记
+      deleteSignId:null,//右击删除是或其标识点id
     };
   },
   methods: {
@@ -201,7 +216,7 @@ export default {
       //添加标点右击事件
       div.oncontextmenu = function (e) {
         e.preventDefault();
-        that.signClick(that, x, y, this.signId)
+        that.deleteOneSign(that, x, y, this.signId)
       }
       //生成标点
       document.getElementById(divName).appendChild(div)
@@ -228,13 +243,27 @@ export default {
     },
     //标点的点击事件
     signClick(that, x, y, signId) {
-      x = x + 2 * this.signHeight + 'px'
-      y = y - 50 + 'px'
-      that.leftClickDialogBox = true
+      that.deleteOneSignView = false;
+      that.leftClickDialogBox = true;
+      x = x + 2 * this.signHeight + 'px';
+      y = y - 50 + 'px';
       //设置消息框位置
       document.getElementById('leftClickDialogBox').setAttribute('style', 'left: ' + x + ';top:' + y + ';position: absolute;')
     },
+    //标点的点击事件
+    deleteOneSign(that, x, y, signId) {
+      //设置需要删除的标点id
+      that.deleteSignId = signId;
+      that.deleteOneSignView = true
+      that.leftClickDialogBox = false;
+      x = x + this.signHeight + 'px'
+      y = y  + 'px'
+      //设置消息框位置
+      document.getElementById('deleteOneSign').setAttribute('style', 'left: ' + x + ';top:' + y + ';position: absolute;')
+    },
     addImageAndSgin() {
+      this.signImageWidth = document.getElementById("dv").clientWidth;
+      this.signImageHeight = document.getElementById("dv").clientHeight;
       if (this.file == null) {
         this.$modal.msgError("请选择线路图");
         return
@@ -305,6 +334,7 @@ export default {
       }
       //设置图片id
       this.imgId = this.getUuid()
+
     },
     //清除全部标记
     clearSign() {
@@ -339,9 +369,14 @@ export default {
         this.squareBorder = true;//方形
       }
     },
+    //删除标点
+    deleteOneSignAndObject(){
+      //
+    },
     //关闭消息框
     leavePicture() {
       this.leftClickDialogBox = false
+      this.deleteOneSignView = false
     },
     //移入对话框不关闭
     leaveDialogBox() {
