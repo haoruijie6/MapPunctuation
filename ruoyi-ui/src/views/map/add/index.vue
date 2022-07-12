@@ -211,12 +211,12 @@ export default {
       let that = this;
       //添加标点左击事件
       div.onclick = function () {
-        that.signClick(that, x, y, this.signId)
+        that.signClick(that, x, y, that.signId)
       }
       //添加标点右击事件
       div.oncontextmenu = function (e) {
         e.preventDefault();
-        that.deleteOneSign(that, x, y, this.signId)
+        that.deleteOneSign(that, x, y, that.signId)
       }
       //生成标点
       document.getElementById(divName).appendChild(div)
@@ -252,6 +252,7 @@ export default {
     },
     //标点的点击事件
     deleteOneSign(that, x, y, signId) {
+      console.log(signId)
       //设置需要删除的标点id
       that.deleteSignId = signId;
       that.deleteOneSignView = true
@@ -353,6 +354,21 @@ export default {
       this.imgId = '' //清除图片id
       this.clearSign();
     },
+    //删除标点
+    deleteOneSignAndObject(){
+      //删除元素
+      document.getElementById(this.deleteSignId).remove();
+      this.visible = false
+    },
+    //关闭消息框
+    leavePicture() {
+      this.leftClickDialogBox = false
+      this.deleteOneSignView = false
+    },
+    //移入对话框不关闭
+    leaveDialogBox() {
+      this.leftClickDialogBox = true
+    },
     //设置标点形状
     judgeShape(signBorder) {
       if (signBorder == '圆形') {
@@ -368,50 +384,6 @@ export default {
         this.circularBorder = false; //圆边框
         this.squareBorder = true;//方形
       }
-    },
-    //删除标点
-    deleteOneSignAndObject(){
-      //
-    },
-    //关闭消息框
-    leavePicture() {
-      this.leftClickDialogBox = false
-      this.deleteOneSignView = false
-    },
-    //移入对话框不关闭
-    leaveDialogBox() {
-      this.leftClickDialogBox = true
-    },
-    //将所有点连在一起
-    connectSgin() {
-      console.log(this.signXYArray)
-      this.signXYArray.map((dot, index) => {
-        // 最后一个点没有连线
-        if (!dot[index + 1]) return;
-        1000
-        const AB = {
-          x: dots[index + 1].x - dot.x,
-          y: dots[index + 1].y - dot.y,
-        }
-        const BC = {
-          x: 0,
-          y: 1,
-        }
-        // 向量的模
-        const a = Math.sqrt(Math.pow(AB.x, 2) + Math.pow(AB.y, 2));
-        const b = Math.sqrt(Math.pow(BC.x, 2) + Math.pow(BC.y, 2));
-        const aXb = (AB.x * BC.x) + (AB.y * BC.y);
-        const cos_ab = aXb / (a * b);
-        // 求出偏转角度
-        const angle_1 = Math.acos(cos_ab) * (180 / Math.PI);
-        // 10 是点的半径, 根据点的大小修改
-        lines.push({
-          x: dot.x + 10,
-          y: dot.y + 10,
-          width: a,
-          angel: AB.x > 0 ? Math.sqrt(Math.pow(angle_1, 2)) : -Math.sqrt(Math.pow(angle_1, 2))
-        })
-      })
     },
     getUuid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
