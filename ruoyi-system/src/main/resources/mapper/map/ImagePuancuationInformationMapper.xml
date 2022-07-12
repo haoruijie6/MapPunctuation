@@ -62,7 +62,7 @@
                  left join t_punctuation_information tpi on tipi.id = tpi.image_id
         where tipi.create_by = #{userId}
           and tpi.state = 0
-        order by tpi.create_time  DESC
+        order by tpi.sort
     </select>
 
     <insert id="insertTImagePuancuationInformation" parameterType="TImagePuancuationInformationPo">

@@ -216,7 +216,8 @@ export default {
         punctuationElement: div, //标点元素
         signContent: this.signXYArray.length,//标点内容
         signShape: shape,//标点形状 1正方形 2圆形 3三角形
-        signColor: this.signColor
+        signColor: this.signColor,
+        sort: this.signObject.length+1 //设置排序
       }
       //将标点对象存入集合
       this.signObject.push(signObject);
@@ -389,9 +390,6 @@ export default {
 </script>
 
 <style>
-.marker .signImg {
-  /*position: absolute;*/
-}
 
 .marker {
   border-radius: 30px;
@@ -400,7 +398,6 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-
 }
 
 .signImg {

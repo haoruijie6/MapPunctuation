@@ -50,7 +50,7 @@
                 #{item.signShape},
                 #{item.signColor},
                 0,
-                #{sort},
+                #{item.sort},
                 NOW()
             )
         </foreach>
