@@ -107,7 +107,6 @@ export default {
       this.imageHeight = Number(imageObject.imageHeigth) ;
       this.signImageUrl = imageObject.imageUrl; //设置图片url
       this.signObject = imageObject.tPunctuationInformationPoList//设置当前图片的标点信息
-
     },
     //创建点
     createMarker() {
@@ -315,7 +314,7 @@ export default {
   width: 280px;
   height: 230px;
   float: left;
-  margin: 45px 0px 100px 20px;
+  margin: 45px 20px 100px 40px;
 }
 
 .marker {
