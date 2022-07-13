@@ -57,7 +57,7 @@ public class MapController extends BaseController {
         //设置图片url
         imagePuancuationInformationPo.setImageUrl(fileUrl);
         //设置图片名称
-        imagePuancuationInformationPo.setImageName(upFileName);
+//        imagePuancuationInformationPo.setImageName(upFileName);
         return toAjax(mapService.addImageAndSgin(imagePuancuationInformationPo));
     }
 
@@ -66,8 +66,8 @@ public class MapController extends BaseController {
      * @return
      */
     @GetMapping("/")
-    public AjaxResult queryImageAndSgin(){
-        return AjaxResult.success(mapService.queryImageAndSgin());
+    public AjaxResult queryImageAndSgin(ImagePuancuationInformationDto image){
+        return AjaxResult.success(mapService.queryImageAndSgin(image));
     }
 
     /**

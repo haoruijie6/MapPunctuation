@@ -18,7 +18,12 @@ public interface MapService {
      * 查询线路图信息
      * @return 结果
      */
-    List<ImagePuancuationInformationDto> queryImageAndSgin();
+    List<ImagePuancuationInformationDto> queryImageAndSgin(ImagePuancuationInformationDto image);
 
+    /**
+     * 删除线路图与标点
+     * @param id 图片id
+     * @return 结果
+     */
     int deleteImageAndSgin(String id);
 }

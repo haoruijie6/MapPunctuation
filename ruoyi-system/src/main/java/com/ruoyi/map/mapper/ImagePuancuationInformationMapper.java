@@ -4,6 +4,8 @@ import com.ruoyi.map.domain.dto.ImagePuancuationInformationDto;
 import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import com.ruoyi.map.domain.po.TImagePuancuationInformationPo;
+import org.apache.ibatis.annotations.Param;
+
 @Mapper
 public interface ImagePuancuationInformationMapper {
 
@@ -21,7 +23,8 @@ public interface ImagePuancuationInformationMapper {
      * @param userId userId
      * @return 结果
      */
-    List<ImagePuancuationInformationDto> queryImageAndSgin(String userId);
+    List<ImagePuancuationInformationDto> queryImageAndSgin(@Param("userId") String userId,
+                                                           @Param("image") ImagePuancuationInformationDto image);
 
     /**
      * 删除图片

@@ -62,6 +62,9 @@
                  left join t_punctuation_information tpi on tipi.id = tpi.image_id
         where tipi.create_by = #{userId}
           and tpi.state = 0
+        <if test="image.imageName != null and image.imageName != ''">
+            and tipi.image_name like concat('%', #{image.imageName}, '%')
+        </if>
         order by tpi.sort
     </select>
 

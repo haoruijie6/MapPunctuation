@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import {listInformation, deleteInformation} from "@/api/map/information";
+import {listInformation, deleteInformation} from "@/api/map/map";
 
 export default {
   name: "MapViews",

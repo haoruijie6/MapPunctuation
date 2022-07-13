@@ -1,42 +1,63 @@
 <template>
   <div>
-    <div style="margin-top: 30px; margin-left: 50px;">
-      <el-upload
-        class="upload-demo"
-        ref="upload"
-        action="https://jsonplaceholder.typicode.com/posts/"
-        :on-preview="handlePictureCardPreview"
-        :on-remove="handleRemove"
-        :on-change="addSignImageUrl"
-        :show-file-list="false"
-        :multiple="false"
-        name="file"
-        :auto-upload="false">
-        <el-button slot="trigger"
-                   icon="el-icon-circle-plus-outline"
-                   type="primary">制作线路图
-        </el-button>
-      </el-upload>
+    <div style="margin-top: 50px; margin-left: 50px;">
+      <el-form label-width="68px" style="margin-bottom: 20px;" :inline="true">
+        <el-form-item label="线路图名">
+          <el-input
+            v-model="queryParam.imageName"
+            placeholder="请输入线路图名称"
+            clearable
+            style="width: 240px;margin-left: 20px"/>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" @click="queryImage">搜索</el-button>
+          <el-button icon="el-icon-refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+        <el-col>
+          <el-upload
+            class="upload-demo"
+            ref="upload"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleRemove"
+            :on-change="addSignImageUrl"
+            :show-file-list="false"
+            :multiple="false"
+            name="file"
+            :auto-upload="false">
+            <el-button
+              slot="trigger"
+              icon="el-icon-circle-plus-outline"
+              type="warning">制作线路图
+            </el-button>
+          </el-upload>
+        </el-col>
+      </el-form>
     </div>
-
-    <div style="width: 100%;">
-      <div class="signImageTables" v-for="(item, index) in queryImageObjects ">
+    <div>
+      <el-empty style="margin-top: 140px;" description="暂无线路图" v-if="queryImageObjects.length === 0"></el-empty>
+      <div class="signImageTables" v-for="(item, index) in queryImageObjects" v-else>
+        <div style="text-align: center; width: 100%;margin-top: 10px; margin-bottom: 30px;">
+          <span>{{item.imageName}}</span>
+        </div>
         <img style="height: 100%;width: 100%;" :src="item.imageUrl"/>
-        <div style="text-align:center;">
-          <el-button type="success"
-                     plain
-                     icon="el-icon-view"
-                     @click="queryImageMarker(index)">查看线路图
+        <div style="text-align:center;width: 100%;margin-top: 25px">
+          <el-button
+            type="success"
+            plain
+            icon="el-icon-view"
+            @click="queryImageMarker(index)">查看线路图
           </el-button>
-          <el-button type="danger"
-                     plain
-                     icon="el-icon-delete"
-                     @click="deleteImageMarker(index)">删除线路图
+          <el-button
+            type="danger"
+            plain
+            icon="el-icon-delete"
+            @click="deleteImageMarker(index)">删除线路图
           </el-button>
         </div>
       </div>
     </div>
-
+    <!--  线路图标点  -->
     <el-dialog @close="clearImage" width="80%" title="线路图标点" :visible.sync="zhiZuoOpen">
       <el-form label-width="68px" style="margin-bottom: 20px;" :inline="true">
         <el-form-item label="宽度">
@@ -53,16 +74,12 @@
             clearable
             style="width: 240px"/>
         </el-form-item>
-        <el-form-item label="形状">
-          <el-select v-model="signBorder" placeholder="请选择标点形状" style="width: 240px;">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-              :change="judgeShape(signBorder)">
-            </el-option>
-          </el-select>
+        <el-form-item label="线路图名">
+          <el-input
+            v-model="imageName"
+            placeholder="请输入线路图名称"
+            clearable
+            style="width: 240px"/>
         </el-form-item>
         <el-form-item label="设置颜色">
           <div class="block">
@@ -74,7 +91,6 @@
             <el-button
               type="success"
               plain
-              size="mini"
               icon="el-icon-upload2"
               @click="addImageAndSgin">上传
             </el-button>
@@ -83,8 +99,7 @@
             <el-button
               type="danger"
               plain
-              size="mini"
-              icon="el-icon-delete"
+              icon="el-icon-circle-close"
               @click="clearSign">清空所有元素
             </el-button>
           </el-form-item>
@@ -92,7 +107,6 @@
             <el-button
               type="danger"
               plain
-              size="mini"
               icon="el-icon-delete"
               @click="clearImage">删除图片
             </el-button>
@@ -102,7 +116,7 @@
           <div>
             <div class="signImg" id="dv" @mouseleave="leavePicture" v-show="signImageUrl != ''">
               <div style="position: relative">
-                <img id="signImage" @click="leavePicture" @contextmenu="rightClick($event)" :src="signImageUrl">
+                <img id="signImage" @click="leavePicture" @contextmenu="rightClick($event)" :src="signImageUrl" alt="">
                 <div id="leftClickDialogBox" v-show="leftClickDialogBox" @mouseover="leaveDialogBox">
                   消息框
                 </div>
@@ -123,8 +137,8 @@
           </div>
         </el-form-item>
       </el-form>
-
     </el-dialog>
+    <!-- 查看线路图详情  -->
     <el-dialog :width="queryImageWidth+50+'px'" title="线路图详情" :visible.sync="queryOpen" @close="removeConnect">
       <el-form label-width="68px" style="margin-bottom: 20px;" :inline="true">
         <el-form-item>
@@ -160,7 +174,7 @@
           <div style="width: 100%;">
             <div style="text-align:center;">
               <div class="signImg" id="queryDv">
-                <img :src="querySignImageUrl" style="padding-bottom: 25px;background-color: white;">
+                <img :src="querySignImageUrl" style="padding-bottom: 25px;background-color: white;" alt="">
               </div>
             </div>
           </div>
@@ -173,7 +187,7 @@
 <script>
 import {
   listInformation, deleteInformation
-} from "@/api/map/information";
+} from "@/api/map/map";
 import axios from 'axios'
 import {getToken} from "@/utils/auth";
 
@@ -184,6 +198,7 @@ export default {
       zhiZuoOpen: false,
       queryOpen: false,
       visible: false,
+      imageName: '',//线路图名称
       imgId: '',
       queryImageObjects: [], //所有线路图与标点信息
       querySignObject: [], //查询的标点对象集合
@@ -221,32 +236,37 @@ export default {
       file: null,
       deleteOneSignView: false, //右击删除标记
       deleteSignId: null,//右击删除是或其标识点id
+      queryParam:{//查询参数
+        imageName: null
+      },
     };
   },
   created() {
-    listInformation().then(response => {
-      this.queryImageObjects = response.data
-    });
+    this.queryImage();
   },
   methods: {
+    queryImage(){
+      listInformation(this.queryParam).then(response => {
+        this.queryImageObjects = response.data
+      });
+    },
+    resetQuery(){
+      this.queryParam.imageName = null;
+      this.queryImage();
+    },
     rightClick(e) {
       e.preventDefault();
       e = e || window.event
-      var x = e.offsetX || e.layerX;
-      var y = e.offsetY || e.layerY;
-      //将标点添加到对象中
-      let xyObject = {
-        x: x,
-        y: y
-      }
+      let x = e.offsetX;
+      let y = e.offsetY;
       //创建标点
       this.createMarker(x, y, 'dv');
     },
     createMarker(x, y, divName) {
       //获取标点id
-      var signId = this.getUuid();
+      let signId = this.getUuid();
       //创建一个div
-      var div = document.createElement('div');
+      let div = document.createElement('div');
       //设置样式和距离
       div.id = signId;
       div.className = 'marker';
@@ -261,12 +281,12 @@ export default {
       let shape = 1;
       if (this.squareBorder) {//是否开启正方形
         div.style.background = this.signColor; //设置颜色
-        let shape = 1
+        shape = 1
       }
       if (this.circularBorder) {//是否开启圆边框
         div.style.background = this.signColor; //设置颜色
         div.style.borderRadius = '50%';
-        let shape = 2
+        shape = 2
       }
       if (this.triangleBorder) {//是否开启三角边框
         div.style.background = 'transparent'; //设置颜色
@@ -274,7 +294,7 @@ export default {
         div.style.borderTop = '10px solid transparent';
         div.style.borderRight = '10px solid transparent';
         div.style.borderLeft = '10px solid transparent';
-        let shape = 3
+        shape = 3
       }
       let that = this;
       //添加标点左击事件
@@ -289,7 +309,7 @@ export default {
       //生成标点
       document.getElementById(divName).appendChild(div)
       //创建标点对象
-      var signObject = {
+      let signObject = {
         id: signId, //标点id
         imageId: this.imgId, //图片id
         relativeToPictureX: x, //标点相对于图片的x轴距离
@@ -308,7 +328,7 @@ export default {
       this.signIds.push(signId)
     },
     //标点的点击事件
-    signClick(that, x, y, signId) {
+    signClick(that, x, y) {
       that.deleteOneSignView = false;
       that.leftClickDialogBox = true;
       x = x + 2 * this.signHeight + 'px';
@@ -374,9 +394,13 @@ export default {
         this.$modal.msgError("线路图未标点");
         return
       }
-      var imageObject = {
+      if(this.imageName === '' || this.imageName == null){
+        this.$message.error('请输入图片名称!');
+        return
+      }
+      let imageObject = {
         id: this.imgId,
-        imageName: null,
+        imageName: this.imageName,
         imageWidth: this.signImageWidth,
         imageHeigth: this.signImageHeight,
         tPunctuationInformationPoList: this.signObject
@@ -407,26 +431,26 @@ export default {
 
     },
     //图片操作
-    handleRemove(file, fileList) {
+    handleRemove() {
       this.signImageUrl = '';
     },
-    handlePictureCardPreview(file) {
+    handlePictureCardPreview() {
       this.signVisible = true;
     },
-    addSignImageUrl(file, fileList) {
+    addSignImageUrl(file) {
       this.file = file.raw;
-      const isJPG = this.file.type == 'image/jpg'
-      const isPNG = this.file.type == 'image/png'
-      const isJPEG = this.file.type == 'image/jpeg'
+      const isJPG = this.file.type === 'image/jpg'
+      const isPNG = this.file.type === 'image/png'
+      const isJPEG = this.file.type === 'image/jpeg'
       const isLt2M = this.file.size / 1024 / 1024 < 5
       if (!isJPG && !isPNG && !isJPEG) {
         this.$message.error('请上传符合格式的图片!');
-        this.item = [];
+        this.file = null;
         return;
       }
       if (!isLt2M) {
         this.$message.error('上传图片大小不能超过 5MB!');
-        this.item = [];
+        this.file = null;
         return;
       }
       let reader = new FileReader();
@@ -439,6 +463,7 @@ export default {
       //设置图片id
       this.imgId = this.getUuid();
       this.zhiZuoOpen = true;
+      this.signImageWidth = document.getElementById("dv").clientWidth;
     },
     //清除全部标记
     clearSign() {
@@ -453,6 +478,7 @@ export default {
       this.signImageUrl = ''; //删除图片url
       this.file = null; //清除线路图文件
       this.imgId = '' //清除图片id
+      this.imageName = null //清除图片名称
       this.clearSign();
       this.zhiZuoOpen = false;
     },
@@ -468,9 +494,9 @@ export default {
     //查询的创建点
     queryCreateMarker() {
       for (let i = 0; i < this.querySignObject.length; i++) {
-        var signObject = this.querySignObject[i];
+        let signObject = this.querySignObject[i];
         //创建一个div
-        var div = document.createElement('div');
+        let div = document.createElement('div');
         //设置样式和距离
         div.id = signObject.id;
         div.className = 'marker';
@@ -524,7 +550,7 @@ export default {
         //计算线位置
         let lineWidth = Number(this.querySignObject[i].relativeToPictureY) + Number(this.querySignObject[i].signHeight / 2);
         let lineHeigth = Number(this.querySignObject[i].relativeToPictureX) + Number(this.querySignObject[i].signWidth / 2);
-        var div = document.createElement('div');
+        let div = document.createElement('div');
         div.id = lineId;
         div.style.position = "absolute";
         div.style.borderTop = "3px solid red"; //设置样式
@@ -558,7 +584,7 @@ export default {
     },
     //删除线路图
     deleteImageMarker(index) {
-      var that = this;
+      let that = this;
       this.$modal.confirm('确认要删除这张线路图吗').then(function () {
         return deleteInformation(that.queryImageObjects[index].id);
       }).then(() => {
@@ -576,7 +602,6 @@ export default {
         this.querySignObject.forEach(s => {
           document.getElementById(s.id).remove();
         })
-      } catch (e) {
       } finally {
         //清除上一张图线
         try {
@@ -584,7 +609,6 @@ export default {
           this.lineIds.forEach(s => {
             document.getElementById(s).remove();
           })
-        } catch (e) {
         } finally {
           this.lineIds = [];
         }
@@ -601,7 +625,7 @@ export default {
         })
         this.$modal.msgSuccess("清除成功")
       } catch (e) {
-        this.$modal.msgSuccess("未连线")
+        this.$message.error('未连线');
       } finally {
         this.lineIds = [];
       }
@@ -614,7 +638,7 @@ export default {
         })
         this.$modal.msgSuccess("清除成功");
       } catch (e) {
-        this.$modal.msgSuccess("暂无标点");
+        this.$message.error('暂无标点');
       }
     },
     //判断存在那个象限
@@ -625,12 +649,12 @@ export default {
       x2 = Number(x2);
       y2 = Number(y2);
       // 获得人物中心和鼠标坐标连线，与y轴正半轴之间的夹角
-      var x = x1 - x2;
-      var y = y1 - y2;
-      var z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-      var cos = y / z;
-      var radina = Math.acos(cos); // 用反三角函数求弧度
-      var angle = 180 / (Math.PI / radina); // 将弧度转换成角度
+      let x = x1 - x2;
+      let y = y1 - y2;
+      let z = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+      let cos = y / z;
+      let radina = Math.acos(cos); // 用反三角函数求弧度
+      let angle = 180 / (Math.PI / radina); // 将弧度转换成角度
       if (x2 > x1 && y2 === y1) {
         // 在x轴正方向上
         angle = 0;
@@ -667,15 +691,15 @@ export default {
     },
     //设置标点形状
     judgeShape(signBorder) {
-      if (signBorder == '圆形') {
+      if (signBorder === '圆形') {
         this.triangleBorder = false;//开启三角边框
         this.circularBorder = true; //圆边框
         this.squareBorder = false;//方形
-      } else if (signBorder == '三角形') {
+      } else if (signBorder === '三角形') {
         this.triangleBorder = true;//开启三角边框
         this.circularBorder = false; //圆边框
         this.squareBorder = false;//方形
-      } else if (signBorder == '正方形') {
+      } else if (signBorder === '正方形') {
         this.triangleBorder = false;//开启三角边框
         this.circularBorder = false; //圆边框
         this.squareBorder = true;//方形
@@ -683,8 +707,8 @@ export default {
     },
     getUuid() {
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-        var r = (Math.random() * 16) | 0,
-          v = c == 'x' ? r : (r & 0x3) | 0x8;
+        let r = (Math.random() * 16) | 0,
+          v = c === 'x' ? r : (r & 0x3) | 0x8;
         return v.toString(16);
       });
     },
@@ -693,7 +717,6 @@ export default {
 </script>
 
 <style>
-
 .marker {
   border-radius: 30px;
   color: white;
@@ -702,7 +725,6 @@ export default {
   align-items: center;
   justify-content: center;
 }
-
 .signImg {
   position: relative;
   border: solid 1px #000;
@@ -740,10 +762,9 @@ export default {
 
 .signImageTables {
   position: relative;
-  width: 280px;
-  height: 230px;
+  width: 300px;
+  height: 240px;
   float: left;
   margin: 45px 20px 100px 40px;
 }
 </style>
-

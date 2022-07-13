@@ -36,11 +36,10 @@ public class MapServiceImpl implements MapService {
     public int addImageAndSgin(ImagePuancuationInformationDto image) {
         image.setCreateBy(String.valueOf(SecurityUtils.getUserId()));
         image.setCreateTime(DateUtils.getNowDate());
-        //将线图片存入数据库
-        imagePuancuationInformationMapper.insertTImagePuancuationInformation(image);
         int i = punctuationInformationMapper.insertTPunctuationInformation(image.gettPunctuationInformationPoList());
         System.err.println("添加标点数量"+i);
-        return 1;
+        //将线图片存入数据库
+        return imagePuancuationInformationMapper.insertTImagePuancuationInformation(image);
     }
 
     /**
@@ -48,8 +47,8 @@ public class MapServiceImpl implements MapService {
      * @return 结果
      */
     @Override
-    public List<ImagePuancuationInformationDto> queryImageAndSgin() {
-        return imagePuancuationInformationMapper.queryImageAndSgin(String.valueOf(SecurityUtils.getUserId()));
+    public List<ImagePuancuationInformationDto> queryImageAndSgin(ImagePuancuationInformationDto image) {
+        return imagePuancuationInformationMapper.queryImageAndSgin(String.valueOf(SecurityUtils.getUserId()),image);
     }
 
     @Override
