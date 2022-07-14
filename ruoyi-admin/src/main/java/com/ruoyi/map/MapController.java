@@ -3,7 +3,6 @@ package com.ruoyi.map;
 import com.alibaba.fastjson2.JSON;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.minio.MinioUtils;
 import com.ruoyi.common.utils.uuid.UUID;
 import com.ruoyi.map.domain.dto.ImagePuancuationInformationDto;
